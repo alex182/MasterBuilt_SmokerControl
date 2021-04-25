@@ -1,4 +1,4 @@
-# MasterBuit_SmokerControl
+# MasterBuilt_SmokerControl
 NodeMcu based MasterBuilt smoker controller 
 <br>
 
