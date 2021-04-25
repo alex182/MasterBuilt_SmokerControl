@@ -11,14 +11,3 @@ Nodemcu of course [link](https://smile.amazon.com/gp/product/B07L8W9SP3/ref=ppx_
 
 K Type ThermoCouples [link](https://smile.amazon.com/gp/product/B00899A4LY/ref=ppx_yo_dt_b_asin_title_o04_s00?ie=UTF8&psc=1)
 
-
-## Circut Diagram 
-
-
-
-
-
-
- 
- 
-
