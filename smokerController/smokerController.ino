@@ -11,8 +11,8 @@
 //mqtt configs
 #define MQTT_HOST IPAddress(192,168,1,145)
 #define MQTT_PORT 1883
-#define mqtt_user "homeassistant"
-#define mqtt_password "<>"
+#define mqtt_user ""
+#define mqtt_password ""
 
 #define MQTT_FOOD_PUB_TEMP "esp/food/current/temperature"
 #define MQTT_SMOKER_PUB_TEMP "esp/smoker/current/temperature"
@@ -23,8 +23,8 @@ AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
 
 // Replace with your network credentials
-const char* ssid     = "<>";
-const char* password = "<>";
+const char* ssid     = "";
+const char* password = "";
 const char* hostName = "smokerControl";
 
 IPAddress local_IP(192,168,4,22);
@@ -93,9 +93,12 @@ void connectToMqtt() {
   Serial.println("Connecting to MQTT...");
    mqttClient.setCredentials("quser","quser");
 
-   while (!mqttClient.connected()) {
+   int connectAttempts = 0;
+   while (!mqttClient.connected() && connectAttempts <= 20) {
+        connectAttempts++; 
     // Attempt to connect
-    Serial.println("Attempt to connect to MQTT broker");
+    Serial.print("Attempting to connect to MQTT broker ");
+    Serial.println(connectAttempts); 
     mqttClient.connect();
 
     // Wait some time to space out connection requests
@@ -154,8 +157,8 @@ void setup() {
   int wifiConnectAttempts = 0;
   while (WiFi.status() != WL_CONNECTED && wifiConnectAttempts < 100) {
     wifiConnectAttempts+=1; 
-    delay(500);
-    Serial.print("Attemp: ");
+    delay(1000);
+    Serial.print("Attempt: ");
     Serial.println(wifiConnectAttempts);
   }
 
@@ -276,7 +279,7 @@ void loop(){
   Serial.print("Food Temp: ");
   Serial.println(foodTempProbeReading);
 
-  if(WiFi.status() == WL_CONNECTED){
+  if(WiFi.status() == WL_CONNECTED && mqttClient.connected()){
     uint16_t smokerTargetTempPacket = mqttClient.publish(MQTT_SMOKER_PUB_TARGET_TEMP , 1, true, String(smokerTargetTemp).c_str());                            
     Serial.printf("Publishing on topic %s at QoS 1, packetId: %i ", MQTT_SMOKER_PUB_TARGET_TEMP , smokerTargetTempPacket);
     Serial.printf("Message: %.2f \n", smokerTargetTemp);
@@ -292,6 +295,16 @@ void loop(){
     uint16_t foodTempPacket = mqttClient.publish(MQTT_FOOD_PUB_TEMP, 1, true, String(foodTempProbeReading).c_str());                            
     Serial.printf("Publishing on topic %s at QoS 1, packetId: %i ", MQTT_FOOD_PUB_TEMP, foodTempPacket);
     Serial.printf("Message: %.2f \n", foodTempProbeReading);
+  }
+  else{
+    
+    int wifiConnectAttempts = 0;
+    while (WiFi.status() != WL_CONNECTED && wifiConnectAttempts < 50) {
+    wifiConnectAttempts+=1; 
+      delay(1000);
+      Serial.print("Attempt: ");
+      Serial.println(wifiConnectAttempts);
+    }
   }
 
   ArduinoOTA.handle();
